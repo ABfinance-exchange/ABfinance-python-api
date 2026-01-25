@@ -4,7 +4,7 @@ from abfinance_api.unified_trading import HTTP
 
 # Set up logging (optional)
 import logging
-logging.basicConfig(filename="ABfinance-python-api.log", level=logging.DEBUG,
+logging.basicConfig(filename="abfinance-python-api.log", level=logging.DEBUG,
                     format="%(asctime)s %(levelname)s %(message)s")
 
 

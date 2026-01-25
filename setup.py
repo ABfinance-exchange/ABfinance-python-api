@@ -7,12 +7,12 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name='ABfinance-python-api',
-    version='1.0.0',
+    name='abfinance-python-api',
+    version='1.0.3',
     description='Python3 HTTP/WebSocket API Connector',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/ABfinance-exchange/ABfinance-python-api",
+    url="https://github.com/ABfinance-exchange/abfinance-python-api",
     license="MIT License",
     author="Johnny",
     classifiers=[

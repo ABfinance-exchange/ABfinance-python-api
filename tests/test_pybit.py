@@ -11,8 +11,8 @@ from abfinance_api._http_manager import _V5HTTPManager
 from abfinance_api.unified_trading import HTTP
 from abfinance_api import _http_manager
 
-_api_key = "CFEJUGQEQPPHGOHGHM"
-_api_secret = "VDFZSSPUTKRJMXAVMJXBHEXIPZNZJIZUBVRQ"
+_api_key = "XX"
+_api_secret = "XX"
 
 
 @pytest.fixture
@@ -67,7 +67,7 @@ def test_clean_query(http, query, expected):
 
 def test_get_server_time_direct(http):
     """
-    Ensure HTTP availability of API using ABfinance-python-api
+    Ensure HTTP availability of API using abfinance-python-api
     """
     resp = http.get_server_time()["result"]
     assert isinstance(resp, dict)
@@ -112,7 +112,7 @@ def test_http_session_headers_and_timeout():
 
 
 def test_referral_id_sets_header():
-    ref = "ABfinance-python-api"
+    ref = "abfinance-python-api"
     m = _V5HTTPManager(referral_id=ref)
     assert m.client.headers["Referer"] == ref
 
