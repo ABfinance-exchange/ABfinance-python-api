@@ -131,5 +131,9 @@ dmypy.json
 # PyCharm idea files
 *.idea
 
-# VSCode files 
+# VSCode files
 *.vscode
+
+# Claude Code local config
+.claude/
+CLAUDE.md
