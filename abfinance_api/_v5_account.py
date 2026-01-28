@@ -40,71 +40,6 @@ class AccountHTTP(_V5HTTPManager):
             auth=True,
         )
 
-    def get_borrow_history(self, **kwargs):
-        """Get interest records, sorted in reverse order of creation time.
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Account.GET_BORROW_HISTORY}",
-            query=kwargs,
-            auth=True,
-        )
-
-    def get_collateral_info(self, **kwargs):
-        """Get the collateral information of the current unified margin account, including loan interest rate, loanable amount, collateral conversion rate, whether it can be mortgaged as margin, etc.
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Account.GET_COLLATERAL_INFO}",
-            query=kwargs,
-            auth=True,
-        )
-
-    def set_collateral_coin(self, **kwargs):
-        """You can decide whether the assets in the Unified account needs to be collateral coins.
-
-        Required args:
-            coin (string): Coin name
-            collateralSwitch (string): ON: switch on collateral, OFF: switch off collateral
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="POST",
-            path=f"{self.endpoint}{Account.SET_COLLATERAL_COIN}",
-            query=kwargs,
-            auth=True,
-        )
-
-    def batch_set_collateral_coin(self, **kwargs):
-        """You can decide whether the assets in the Unified account needs to be collateral coins.
-
-        Required args:
-            request (array): Object
-            > coin (string): Coin name
-            > collateralSwitch (string): ON: switch on collateral, OFF: switch off collateral
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="POST",
-            path=f"{self.endpoint}{Account.BATCH_SET_COLLATERAL_COIN}",
-            query=kwargs,
-            auth=True,
-        )
-
     def get_fee_rates(self, **kwargs):
         """Get the trading fee rate of derivatives.
 
@@ -143,23 +78,6 @@ class AccountHTTP(_V5HTTPManager):
         return self._submit_request(
             method="GET",
             path=f"{self.endpoint}{Account.GET_TRANSACTION_LOG}",
-            query=kwargs,
-            auth=True,
-        )
-
-    def get_mmp_state(self, **kwargs):
-        """Get MMP state
-
-        Required args:
-            baseCoin (string): Base coin
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Account.GET_MMP_STATE}",
             query=kwargs,
             auth=True,
         )
@@ -219,6 +137,20 @@ class AccountHTTP(_V5HTTPManager):
         return self._submit_request(
             method="POST",
             path=f"{self.endpoint}{Account.SET_LIMIT_PRICE_ACTION}",
+            query=kwargs,
+            auth=True,
+        )
+
+    def get_user_setting_config(self, **kwargs):
+        """Get the user setting config.
+
+        Returns:
+            Request results as dictionary.
+
+        """
+        return self._submit_request(
+            method="GET",
+            path=f"{self.endpoint}{Account.GET_USER_SETTING_CONFIG}",
             query=kwargs,
             auth=True,
         )

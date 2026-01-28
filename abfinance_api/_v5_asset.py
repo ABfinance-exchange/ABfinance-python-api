@@ -3,20 +3,6 @@ from .asset import Asset
 
 
 class AssetHTTP(_V5HTTPManager):
-    def get_coin_exchange_records(self, **kwargs):
-        """Query the coin exchange records.
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Asset.GET_COIN_EXCHANGE_RECORDS}",
-            query=kwargs,
-            auth=True,
-        )
-
     def get_coins_balance(self, **kwargs):
         """You could get all coin balance of all account types under the master account, and sub account.
 
@@ -158,10 +144,10 @@ class AssetHTTP(_V5HTTPManager):
         )
 
     def set_deposit_account(self, **kwargs):
-        """Set auto transfer account after deposit. The same function as the setting for Deposit on web GUI
+        """Set auto transfer account after deposit. The same function as the setting for Deposit on web GUI.
 
         Required args:
-            accountType (string): Account type: UNIFIED,SPOT,OPTION,CONTRACT,FUND
+            accountType (string): Account type: UNIFIED, SPOT, FUND
 
         Returns:
             Request results as dictionary.
@@ -348,6 +334,20 @@ class AssetHTTP(_V5HTTPManager):
         return self._submit_request(
             method="POST",
             path=f"{self.endpoint}{Asset.CANCEL_WITHDRAWAL}",
+            query=kwargs,
+            auth=True,
+        )
+
+    def get_vasp_list(self, **kwargs):
+        """Get the VASP (Virtual Asset Service Provider) list.
+
+        Returns:
+            Request results as dictionary.
+
+        """
+        return self._submit_request(
+            method="GET",
+            path=f"{self.endpoint}{Asset.GET_VASP_LIST}",
             query=kwargs,
             auth=True,
         )

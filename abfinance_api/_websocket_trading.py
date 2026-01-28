@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 import json
 import uuid
 import logging
@@ -72,7 +71,7 @@ class _V5TradeWebSocketManager(_WebSocketManager):
         message = {
             "reqId": request_id,
             "header": {
-                "X-BAPI-TIMESTAMP": _helpers.generate_timestamp(),
+                "X-BAPI-TIMESTAMP": str(_helpers.generate_timestamp()),
             },
             "op": operation,
             "args": [
@@ -81,7 +80,7 @@ class _V5TradeWebSocketManager(_WebSocketManager):
         }
 
         if self.recv_window:
-            message["header"]["X-BAPI-RECV-WINDOW"] = self.recv_window
+            message["header"]["X-BAPI-RECV-WINDOW"] = str(self.recv_window)
         if self.referral_id:
             message["header"]["Referer"] = self.referral_id
 

@@ -18,7 +18,7 @@ class MarketHTTP(_V5HTTPManager):
         """Query the kline data. Charts are returned in groups based on the requested interval.
 
         Required args:
-            category (string): Product type: spot,linear,inverse
+            category (string): Product type: spot
             symbol (string): Symbol name
             interval (string): Kline interval.
 
@@ -36,7 +36,7 @@ class MarketHTTP(_V5HTTPManager):
         """Query a list of instruments of online trading pair.
 
         Required args:
-            category (string): Product type. spot,linear,inverse,option
+            category (string): Product type: spot
 
         Returns:
             Request results as dictionary.
@@ -49,10 +49,10 @@ class MarketHTTP(_V5HTTPManager):
         )
 
     def get_orderbook(self, **kwargs):
-        """Query orderbook data
+        """Query orderbook data.
 
         Required args:
-            category (string): Product type. spot, linear, inverse, option
+            category (string): Product type: spot
             symbol (string): Symbol name
 
         Returns:
@@ -69,7 +69,7 @@ class MarketHTTP(_V5HTTPManager):
         """Query the latest price snapshot, best bid/ask price, and trading volume in the last 24 hours.
 
         Required args:
-            category (string): Product type. spot,linear,inverse,option
+            category (string): Product type: spot
 
         Returns:
             Request results as dictionary.
@@ -85,7 +85,7 @@ class MarketHTTP(_V5HTTPManager):
         """Query recent public trading data.
 
         Required args:
-            category (string): Product type. spot,linear,inverse,option
+            category (string): Product type: spot
             symbol (string): Symbol name
 
         Returns:
@@ -99,7 +99,8 @@ class MarketHTTP(_V5HTTPManager):
         )
 
     def get_price_limit(self, **kwargs):
-        """
+        """Query price limit.
+
         Required args:
             symbol (string): Symbol name
 
@@ -117,7 +118,7 @@ class MarketHTTP(_V5HTTPManager):
         """Query RPI orderbook data.
 
         Required args:
-            category (string): Product type. spot, linear, inverse
+            category (string): Product type: spot
             symbol (string): Symbol name
 
         Returns:
@@ -127,21 +128,5 @@ class MarketHTTP(_V5HTTPManager):
         return self._submit_request(
             method="GET",
             path=f"{self.endpoint}{Market.GET_RPI_ORDERBOOK}",
-            query=kwargs,
-        )
-
-    def get_index_price_components(self, **kwargs):
-        """Get index price components.
-
-        Required args:
-            symbol (string): Symbol name
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Market.GET_INDEX_PRICE_COMPONENTS}",
             query=kwargs,
         )

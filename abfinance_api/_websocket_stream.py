@@ -2,6 +2,7 @@ import websocket
 import threading
 import time
 import json
+import ssl
 from ._http_manager import generate_signature
 import logging
 import copy
@@ -14,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 SUBDOMAIN_TESTNET = "stream-testnet"
 SUBDOMAIN_MAINNET = "stream"
-DEMO_SUBDOMAIN_TESTNET = "stream-demo-testnet"
-DEMO_SUBDOMAIN_MAINNET = "stream-demo"
 DOMAIN_MAIN = "abfinance"
 TLD_MAIN = "com"
 
@@ -28,7 +27,6 @@ class _WebSocketManager:
         testnet,
         tld="",
         domain="",
-        demo=False,
         rsa_authentication=False,
         api_key=None,
         api_secret=None,
@@ -38,12 +36,13 @@ class _WebSocketManager:
         restart_on_error=True,
         trace_logging=False,
         private_auth_expire=1,
+        skip_ssl_verify=False,
     ):
         self.testnet = testnet
         self.domain = domain
         self.tld = tld
         self.rsa_authentication = rsa_authentication
-        self.demo = demo
+        self.skip_ssl_verify = skip_ssl_verify
         # Set API keys.
         self.api_key = api_key
         self.api_secret = api_secret
@@ -64,7 +63,7 @@ class _WebSocketManager:
 
         # Record the subscriptions made so that we can resubscribe if the WSS
         # connection is broken.
-        self.subscriptions = []
+        self.subscriptions = {}
 
         # Set ping settings.
         self.ping_interval = ping_interval
@@ -129,11 +128,6 @@ class _WebSocketManager:
         subdomain = SUBDOMAIN_TESTNET if self.testnet else SUBDOMAIN_MAINNET
         domain = DOMAIN_MAIN if not self.domain else self.domain
         tld = TLD_MAIN if not self.tld else self.tld
-        if self.demo:
-            if self.testnet:
-                subdomain = DEMO_SUBDOMAIN_TESTNET
-            else:
-                subdomain = DEMO_SUBDOMAIN_MAINNET
         self.endpoint = url.format(SUBDOMAIN=subdomain, DOMAIN=domain, TLD=tld)
 
         # Attempt to connect for X seconds.
@@ -157,10 +151,12 @@ class _WebSocketManager:
             )
 
             # Setup the thread running WebSocketApp.
+            sslopt = {"cert_reqs": ssl.CERT_NONE} if self.skip_ssl_verify else None
             self.wst = threading.Thread(
                 target=lambda: self.ws.run_forever(
                     ping_interval=self.ping_interval,
                     ping_timeout=self.ping_timeout,
+                    sslopt=sslopt,
                 )
             )
 
@@ -301,21 +297,9 @@ class _V5WebSocketManager(_WebSocketManager):
         self.subscriptions = {}
 
         self.standard_private_topics = [
-            "position",
             "execution",
             "order",
             "wallet",
-            "greeks",
-            "spread.order",
-            "spread.execution",
-        ]
-
-        self.other_private_topics = [
-            "execution.fast"
-        ]
-
-        self.standard_public_topics = [
-            "system.status",
         ]
 
     def subscribe(
@@ -331,7 +315,7 @@ class _V5WebSocketManager(_WebSocketManager):
             desired symbols.
             """
 
-            if topic in self.standard_private_topics + self.standard_public_topics:
+            if topic in self.standard_private_topics:
                 # private topics do not support filters
                 return [topic]
 
@@ -340,7 +324,7 @@ class _V5WebSocketManager(_WebSocketManager):
                 topics.append(topic.format(symbol=single_symbol))
             return topics
 
-        if type(symbol) == str:
+        if isinstance(symbol, str):
             symbol = [symbol]
 
         subscription_args = prepare_subscription_args(symbol)
@@ -370,9 +354,9 @@ class _V5WebSocketManager(_WebSocketManager):
         """
 
         sub = None
-        for _,value in self.subscriptions.items(): # Find subscribe message
+        for _, value in self.subscriptions.items():
             if topic in value:
-                sub=value
+                sub = value
                 break
 
         if sub:
@@ -472,7 +456,7 @@ class _V5WebSocketManager(_WebSocketManager):
                 self.data[topic][key] = value
 
     def _process_auth_message(self, message):
-        # If we get successful futures auth, notify user
+        # If we get successful auth, notify user
         if message.get("success") is True:
             logger.debug(f"Authorization for {self.ws_name} successful.")
             self.auth = True
@@ -491,16 +475,16 @@ class _V5WebSocketManager(_WebSocketManager):
             # sent was successful
             topic = json.loads(list(self.subscriptions.items())[0][1])["args"][0]
 
-        # If we get successful futures subscription, notify user
+        # If we get successful subscription, notify user
         if message.get("success") is True:
             logger.debug(f"Subscription to {topic} successful.")
-        # Futures subscription fail
+        # Subscription fail
         elif message.get("success") is False:
             response = message["ret_msg"]
             logger.error("Couldn't subscribe to topic." f"Error: {response}.")
             self._pop_callback(topic[0])
 
-    def _process_unsubscription_message(self,message):
+    def _process_unsubscription_message(self, message):
         if message.get("req_id"):
             if message.get("success") is True and message["req_id"] in self.subscriptions:
                 topic = json.loads(self.subscriptions[message["req_id"]])["args"][0]

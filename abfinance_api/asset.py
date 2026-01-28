@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class Asset(str, Enum):
-    GET_COIN_EXCHANGE_RECORDS = "/v5/asset/exchange/order-record"
     GET_ALL_COINS_BALANCE = "/v5/asset/transfer/query-account-coins-balance"
     GET_SINGLE_COIN_BALANCE = "/v5/asset/transfer/query-account-coin-balance"
     GET_TRANSFERABLE_COIN = "/v5/asset/transfer/query-transfer-coin-list"
@@ -23,6 +22,7 @@ class Asset(str, Enum):
     GET_WITHDRAWABLE_AMOUNT = "/v5/asset/withdraw/withdrawable-amount"
     WITHDRAW = "/v5/asset/withdraw/create"
     CANCEL_WITHDRAWAL = "/v5/asset/withdraw/cancel"
+    GET_VASP_LIST = "/v5/asset/withdraw/vasp/list"
 
     def __str__(self) -> str:
         return self.value

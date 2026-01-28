@@ -10,7 +10,6 @@ class Market(str, Enum):
     GET_PUBLIC_TRADING_HISTORY = "/v5/market/recent-trade"
     GET_PRICE_LIMIT = "/v5/market/price-limit"
     GET_RPI_ORDERBOOK = "/v5/market/rpi_orderbook"
-    GET_INDEX_PRICE_COMPONENTS = "/v5/market/index-price-components"
 
     def __str__(self) -> str:
         return self.value

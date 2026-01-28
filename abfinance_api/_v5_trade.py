@@ -4,14 +4,15 @@ from .trade import Trade
 
 class TradeHTTP(_V5HTTPManager):
     def place_order(self, **kwargs):
-        """This method supports to create the order for spot, spot margin, linear perpetual, inverse futures and options.
+        """Create an order for spot trading.
 
         Required args:
-            category (string): Product type Unified account: spot, linear, optionNormal account: linear, inverse. Please note that category is not involved with business logic
+            category (string): Product type: spot
             symbol (string): Symbol name
             side (string): Buy, Sell
             orderType (string): Market, Limit
             qty (string): Order quantity
+
         Returns:
             Request results as dictionary.
 
@@ -24,11 +25,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def amend_order(self, **kwargs):
-        """Unified account covers: Linear contract / Options
-        Normal account covers: USDT perpetual / Inverse perpetual / Inverse futures
+        """Amend an unfilled or partially filled order.
 
         Required args:
-            category (string): Product type Unified account: spot, linear, optionNormal account: linear, inverse. Please note that category is not involved with business logic
+            category (string): Product type: spot
             symbol (string): Symbol name
 
         Returns:
@@ -43,11 +43,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def cancel_order(self, **kwargs):
-        """Unified account covers: Spot / Linear contract / Options
-        Normal account covers: USDT perpetual / Inverse perpetual / Inverse futures
+        """Cancel an unfilled or partially filled order.
 
         Required args:
-            category (string): Product type Unified account: spot, linear, optionNormal account: linear, inverse. Please note that category is not involved with business logic
+            category (string): Product type: spot
             symbol (string): Symbol name
             orderId (string): Order ID. Either orderId or orderLinkId is required
             orderLinkId (string): User customised order ID. Either orderId or orderLinkId is required
@@ -64,10 +63,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def get_open_orders(self, **kwargs):
-        """Query unfilled or partially filled orders in real-time. To query older order records, please use the order history interface.
+        """Query unfilled or partially filled orders in real-time.
 
         Required args:
-            category (string): Product type Unified account: spot, linear, optionNormal account: linear, inverse. Please note that category is not involved with business logic
+            category (string): Product type: spot
 
         Returns:
             Request results as dictionary.
@@ -81,14 +80,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def cancel_all_orders(self, **kwargs):
-        """Cancel all open orders
+        """Cancel all open orders.
 
         Required args:
-            category (string): Product type
-                Unified account: spot, linear, option
-                Normal account: linear, inverse.
-
-                Please note that category is not involved with business logic. If cancel all by baseCoin, it will cancel all linear & inverse orders
+            category (string): Product type: spot
 
         Returns:
             Request results as dictionary.
@@ -102,15 +97,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def get_order_history(self, **kwargs):
-        """Query order history. As order creation/cancellation is asynchronous, the data returned from this endpoint may delay.
-        If you want to get real-time order information, you could query this endpoint or rely on the websocket stream (recommended).
+        """Query order history.
 
         Required args:
-            category (string): Product type
-                Unified account: spot, linear, option
-                Normal account: linear, inverse.
-
-                Please note that category is not involved with business logic
+            category (string): Product type: spot
 
         Returns:
             Request results as dictionary.
@@ -124,10 +114,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def place_batch_order(self, **kwargs):
-        """Covers: Option (Unified Account)
+        """Place multiple orders in a single request.
 
         Required args:
-            category (string): Product type. option
+            category (string): Product type: spot
             request (array): Object
             > symbol (string): Symbol name
             > side (string): Buy, Sell
@@ -146,10 +136,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def amend_batch_order(self, **kwargs):
-        """Covers: Option (Unified Account)
+        """Amend multiple orders in a single request.
 
         Required args:
-            category (string): Product type. option
+            category (string): Product type: spot
             request (array): Object
             > symbol (string): Symbol name
             > orderId (string): Order ID. Either orderId or orderLinkId is required
@@ -167,10 +157,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def cancel_batch_order(self, **kwargs):
-        """This endpoint allows you to cancel more than one open order in a single request.
+        """Cancel multiple orders in a single request.
 
         Required args:
-            category (string): Product type. option
+            category (string): Product type: spot
             request (array): Object
             > symbol (string): Symbol name
 
@@ -189,9 +179,9 @@ class TradeHTTP(_V5HTTPManager):
         """Query the qty and amount of borrowable coins in spot account.
 
         Required args:
-            category (string): Product type. spot
+            category (string): Product type: spot
             symbol (string): Symbol name
-            side (string): Transaction side. Buy,Sell
+            side (string): Transaction side. Buy, Sell
 
         Returns:
             Request results as dictionary.
@@ -205,7 +195,7 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def set_dcp(self, **kwargs):
-        """Covers: Option (Unified Account)
+        """Set the disconnected cancel all configuration.
 
         Required args:
             timeWindow (integer): Disconnection timing window time. [10, 300], unit: second
@@ -222,14 +212,10 @@ class TradeHTTP(_V5HTTPManager):
         )
 
     def get_executions(self, **kwargs):
-        """Query users' execution records, sorted by execTime in descending order
+        """Query users' execution records, sorted by execTime in descending order.
 
         Required args:
-            category (string):
-                Product type Unified account: spot, linear, option
-                Normal account: linear, inverse.
-
-                Please note that category is not involved with business logic
+            category (string): Product type: spot
 
         Returns:
             Request results as dictionary.

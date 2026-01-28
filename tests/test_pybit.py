@@ -77,14 +77,14 @@ def test_get_server_time_direct(http):
 
 
 # --- ensuring correct init ---
-@pytest.mark.parametrize("testnet, demo, domain, expected_endpoint", [
-    # mainnet (testnet=False, demo=False)
-    (False, False, None, "https://api.abfinance.com"),
+@pytest.mark.parametrize("testnet, domain, expected_endpoint", [
+    # mainnet (testnet=False)
+    (False, None, "https://api.abfinance.com"),
     # testnet only
-    (True, False, None, "https://api-testnet.abfinance.com"),
+    (True, None, "https://api-testnet.abfinance.com"),
 ])
-def test_endpoint_variations(testnet, demo, domain, expected_endpoint):
-    kwargs = {"testnet": testnet, "demo": demo}
+def test_endpoint_variations(testnet, domain, expected_endpoint):
+    kwargs = {"testnet": testnet}
     if domain is not None:
         kwargs["domain"] = domain
     m = _V5HTTPManager(**kwargs)

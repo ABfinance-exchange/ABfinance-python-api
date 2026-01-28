@@ -9,8 +9,8 @@ from ._v5_market import MarketHTTP
 from ._v5_trade import TradeHTTP
 from ._v5_account import AccountHTTP
 from ._v5_asset import AssetHTTP
-from ._v5_user import UserHTTP
 from ._v5_earn import EarnHTTP
+from ._v5_apilimit import ApiLimitHTTP
 from ._websocket_stream import _V5WebSocketManager
 from ._websocket_trading import _V5TradeWebSocketManager
 
@@ -19,13 +19,9 @@ logger = logging.getLogger(__name__)
 
 WSS_NAME = "Unified V5"
 PRIVATE_WSS = "wss://{SUBDOMAIN}.{DOMAIN}.{TLD}/v5/private"
-PUBLIC_WSS = "wss://{SUBDOMAIN}.{DOMAIN}.com/v5/public/{CHANNEL_TYPE}"
+PUBLIC_WSS = "wss://{SUBDOMAIN}.{DOMAIN}.{TLD}/v5/public/{CHANNEL_TYPE}"
 AVAILABLE_CHANNEL_TYPES = [
-    "inverse",
-    "linear",
     "spot",
-    "option",
-    "misc/status",
     "private",
 ]
 
@@ -36,8 +32,8 @@ class HTTP(
     TradeHTTP,
     AccountHTTP,
     AssetHTTP,
-    UserHTTP,
     EarnHTTP,
+    ApiLimitHTTP,
 ):
     def __init__(self, **args):
         super().__init__(**args)
@@ -52,12 +48,6 @@ class WebSocket(_V5WebSocketManager):
 
     def _validate_private_topic(self):
         if not self.WS_URL.endswith("/private"):
-            raise TopicMismatchError(
-                "Requested topic does not match channel_type"
-            )
-
-    def _validate_system_topic(self):
-        if not self.WS_URL.endswith("misc/status"):
             raise TopicMismatchError(
                 "Requested topic does not match channel_type"
             )
@@ -92,16 +82,6 @@ class WebSocket(_V5WebSocketManager):
 
     # Private topics
 
-    def position_stream(self, callback):
-        """Subscribe to the position stream to see changes to your position data in real-time.
-
-        Push frequency: real-time
-
-        """
-        self._validate_private_topic()
-        topic = "position"
-        self.subscribe(topic, callback)
-
     def order_stream(self, callback):
         """Subscribe to the order stream to see changes to your orders in real-time.
 
@@ -122,21 +102,6 @@ class WebSocket(_V5WebSocketManager):
         topic = "execution"
         self.subscribe(topic, callback)
 
-    def fast_execution_stream(self, callback, categorised_topic=""):
-        """Fast execution stream significantly reduces data latency compared
-        original "execution" stream. However, it pushes limited execution type
-        of trades, and fewer data fields.
-        Use categorised_topic as a filter for a certain `category`. See docs.
-
-        Push frequency: real-time
-
-        """
-        self._validate_private_topic()
-        topic = "execution.fast"
-        if categorised_topic:
-            topic += "." + categorised_topic
-        self.subscribe(topic, callback, categorised_topic)
-
     def wallet_stream(self, callback):
         """Subscribe to the wallet stream to see changes to your wallet in real-time.
 
@@ -147,34 +112,14 @@ class WebSocket(_V5WebSocketManager):
         topic = "wallet"
         self.subscribe(topic, callback)
 
-    def greek_stream(self, callback):
-        """Subscribe to the greeks stream to see changes to your greeks data in real-time. option only.
-
-        Push frequency: real-time
-
-        """
-        self._validate_private_topic()
-        topic = "greeks"
-        self.subscribe(topic, callback)
-
     # Public topics
 
     def orderbook_stream(self, depth: int, symbol: (str, list), callback):
         """Subscribe to the orderbook stream. Supports different depths.
 
-        Linear & inverse:
-        Level 1 data, push frequency: 10ms
-        Level 50 data, push frequency: 20ms
-        Level 200 data, push frequency: 100ms
-        Level 500 data, push frequency: 100ms
-
         Spot:
         Level 1 data, push frequency: 10ms
         Level 50 data, push frequency: 20ms
-
-        Option:
-        Level 25 data, push frequency: 20ms
-        Level 100 data, push frequency: 100ms
 
         Required args:
             symbol (string/list): Symbol name(s)
@@ -186,9 +131,9 @@ class WebSocket(_V5WebSocketManager):
         self.subscribe(topic, callback, symbol)
 
     def rpi_orderbook_stream(self, symbol: (str, list), callback):
-        """Subscribe to the orderbook stream. Supports different depths.
+        """Subscribe to the RPI orderbook stream.
 
-        Spot, Perpetual & Futures:
+        Spot:
         Level 50 data, push frequency: 100ms
 
         Required args:
@@ -200,8 +145,7 @@ class WebSocket(_V5WebSocketManager):
         self.subscribe(topic, callback, symbol)
 
     def trade_stream(self, symbol: (str, list), callback):
-        """
-        Subscribe to the recent trades stream.
+        """Subscribe to the recent trades stream.
         After subscription, you will be pushed trade messages in real-time.
 
         Push frequency: real-time
@@ -240,77 +184,6 @@ class WebSocket(_V5WebSocketManager):
         self._validate_public_topic()
         topic = f"kline.{interval}." + "{symbol}"
         self.subscribe(topic, callback, symbol)
-
-    def liquidation_stream(self, symbol: (str, list), callback):
-        """
-        Pushes at most one order per second per symbol.
-        As such, this feed does not push all liquidations that occur.
-
-        Push frequency: 1s
-
-        Required args:
-            symbol (string/list): Symbol name(s)
-
-        """
-        logger.warning("liquidation_stream() is deprecated. Please use "
-                       "all_liquidation_stream().")
-        self._validate_public_topic()
-        topic = "liquidation.{symbol}"
-        self.subscribe(topic, callback, symbol)
-
-    def all_liquidation_stream(self, symbol: (str, list), callback):
-        """
-
-        Push frequency: 500ms
-
-        Required args:
-            symbol (string/list): Symbol name(s)
-
-        """
-        self._validate_public_topic()
-        topic = "allLiquidation.{symbol}"
-        self.subscribe(topic, callback, symbol)
-
-    def insurance_pool_stream(self, contract_group: (str, list), callback):
-        """Subscribe to the insurance pool stream.
-
-        Push frequency: 1s
-
-        Required args:
-            contract_group (string/list): A contract group, eg "USDT" for
-                USDT-margined contracts
-
-        """
-        self._validate_public_topic()
-        symbol = contract_group
-        topic = "insurance.{symbol}"
-        self.subscribe(topic, callback, symbol)
-
-    def price_limit_stream(self, symbol: str, callback):
-        """Subscribe to the order price limit stream.
-
-        Push frequency: 300ms
-
-        Required args:
-            symbol (string/list): Symbol name(s)
-
-        """
-        self._validate_public_topic()
-        topic = "priceLimit.{symbol}"
-        self.subscribe(topic, callback, symbol)
-
-    # System status topics
-    
-    def system_status_stream(self, callback):
-        """Subscribe to the system's status for when there's platform
-        maintenance or a service incident.
-
-        Push frequency: N/A
-
-        """
-        self._validate_system_topic()
-        topic = "system.status"
-        self.subscribe(topic, callback)
 
 
 class WebSocketTrading(_V5TradeWebSocketManager):

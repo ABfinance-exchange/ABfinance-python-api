@@ -67,37 +67,3 @@ class EarnHTTP(_V5HTTPManager):
             query=kwargs,
             auth=True,
         )
-
-    def get_yield(self, **kwargs):
-        """Get the yield information for earn products.
-
-        Required args:
-            category (string): FlexibleSaving
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Earn.GET_YIELD}",
-            query=kwargs,
-            auth=True,
-        )
-
-    def get_hourly_yield(self, **kwargs):
-        """Get hourly yield information for earn products.
-
-        Required args:
-            category (string): FlexibleSaving
-
-        Returns:
-            Request results as dictionary.
-
-        """
-        return self._submit_request(
-            method="GET",
-            path=f"{self.endpoint}{Earn.GET_HOURLY_YIELD}",
-            query=kwargs,
-            auth=True,
-        )

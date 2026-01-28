@@ -25,8 +25,6 @@ except ImportError:
 HTTP_URL = "https://{SUBDOMAIN}.{DOMAIN}.{TLD}"
 SUBDOMAIN_TESTNET = "api-testnet"
 SUBDOMAIN_MAINNET = "api"
-DEMO_SUBDOMAIN_TESTNET = "api-demo-testnet"
-DEMO_SUBDOMAIN_MAINNET = "api-demo"
 DOMAIN_MAIN = "abfinance"
 TLD_MAIN = "com"        # Global
 TLD_NL = "nl"           # The Netherlands
@@ -64,7 +62,6 @@ class _V5HTTPManager:
     testnet: bool = field(default=False)
     domain: str = field(default=DOMAIN_MAIN)
     tld: str = field(default=TLD_MAIN)
-    demo: bool = field(default=False)
     rsa_authentication: str = field(default=False)
     api_key: str = field(default=None)
     api_secret: str = field(default=None)
@@ -84,11 +81,6 @@ class _V5HTTPManager:
     def __post_init__(self):
         subdomain = SUBDOMAIN_TESTNET if self.testnet else SUBDOMAIN_MAINNET
         domain = DOMAIN_MAIN if not self.domain else self.domain
-        if self.demo:
-            if self.testnet:
-                subdomain = DEMO_SUBDOMAIN_TESTNET
-            else:
-                subdomain = DEMO_SUBDOMAIN_MAINNET
         url = HTTP_URL.format(SUBDOMAIN=subdomain, DOMAIN=domain, TLD=self.tld)
         self.endpoint = url
 
@@ -132,18 +124,11 @@ class _V5HTTPManager:
             string_params = [
                 "qty",
                 "price",
-                "triggerPrice",
-                "takeProfit",
-                "stopLoss",
             ]
-            integer_params = ["positionIdx"]
             for key, value in parameters.items():
                 if key in string_params:
-                    if type(value) != str:
+                    if not isinstance(value, str):
                         parameters[key] = str(value)
-                elif key in integer_params:
-                    if type(value) != int:
-                        parameters[key] = int(value)
 
         if method == "GET":
             payload = "&".join(
